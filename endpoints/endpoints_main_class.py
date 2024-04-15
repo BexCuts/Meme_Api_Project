@@ -4,9 +4,13 @@ import conftest
 
 class EndpointsMain:
     url = 'http://167.172.172.115:52355'
-    headers = {'Content-type': 'application/json', 'Authorization': conftest.create_new_token()}
+    headers = {'Content-type': 'application/json', 'Authorization': None}
     response = None
     json = None
+
+    def __init__(self, token):
+        self.token = token
+        self.headers['Authorization'] = self.token
 
     @allure.step("Check response text")
     def check_response_name(self, text):

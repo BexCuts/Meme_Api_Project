@@ -1,4 +1,5 @@
 import pytest
+import requests
 from endpoints.create_token_endpoint import CreateToken
 from endpoints.post_endpoint import CreateObject
 from endpoints.put_endpoint import PutObject
@@ -16,32 +17,32 @@ def before_run_and_end():
 
 @pytest.fixture
 def create_token_endpoint():
-    return CreateToken()
+    return CreateToken(None)
 
 
 @pytest.fixture
-def post_endpoint():
-    return CreateObject()
+def post_endpoint(create_new_token):
+    return CreateObject(create_new_token)
 
 
 @pytest.fixture
-def put_endpoint():
-    return PutObject
+def put_endpoint(create_new_token):
+    return PutObject(create_new_token)
 
 
 @pytest.fixture
-def delete_endpoint():
-    return DeleteObject
+def delete_endpoint(create_new_token):
+    return DeleteObject(create_new_token)
 
 
 @pytest.fixture
-def get_all_endpoint():
-    return GetObjects()
+def get_all_endpoint(create_new_token):
+    return GetObjects(create_new_token)
 
 
 @pytest.fixture
-def get_one_endpoint():
-    return GetObjectById()
+def get_one_endpoint(create_new_token):
+    return GetObjectById(create_new_token)
 
 
 @pytest.fixture()
@@ -58,7 +59,6 @@ def create_new_token(create_token_endpoint):
 @pytest.fixture()
 def object_id(post_endpoint):
     body = {
-        {
             "text": "some",
             "tags": [
                 1,
@@ -71,8 +71,9 @@ def object_id(post_endpoint):
             },
             "url": 'https://example.com'
         }
-    }
     headers = {'Content-type': 'application/json'}
     response = post_endpoint.create_object(body, headers)
     object_id = response.json()['id']
-    return object_id
+    yield object_id
+    print('delete object')
+    requests.delete(f'http://167.172.172.115:52355/{object_id}')
