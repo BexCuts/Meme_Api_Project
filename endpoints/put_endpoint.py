@@ -1,13 +1,13 @@
 from endpoints.endpoints_main_class import EndpointsMain
-import requests
 import allure
+import requests
 
 
-class PutObject(EndpointsMain):
+class UpdateEndpoint(EndpointsMain):
 
-    @allure.step('Full update object')
-    def update_object(self, object_id, body, headers=None):
+    @allure.step('Update meme')
+    def update_meme(self, meme_id, body, headers=None):
         headers = headers if headers else self.headers
-        self.response = requests.put(f'{self.url}/meme/{object_id}', json=body, headers=headers)
+        self.response = requests.put(f'{self.url}/meme/{meme_id}', json=body, headers=headers)
         self.json = self.response.json()
         return self.response

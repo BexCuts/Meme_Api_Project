@@ -1,79 +1,92 @@
 import pytest
 import requests
-from endpoints.create_token_endpoint import CreateToken
-from endpoints.post_endpoint import CreateObject
-from endpoints.put_endpoint import PutObject
-from endpoints.delete_endpoint import DeleteObject
-from endpoints.get_all_endpoint import GetObjects
-from endpoints.get_one_endpoint import GetObjectById
+from endpoints.delete_endpoint import DeleteMeme
+from endpoints.get_one_endpoint import GetOneMeme
+from endpoints.get_all_endpoint import GetAllMemes
+from endpoints.put_endpoint import UpdateEndpoint
+from endpoints.post_endpoint import PostEndpoint
+from endpoints.create_token_endpoint import CreateTokenEndpoint
 
 
-@pytest.fixture(scope="session")
-def before_run_and_end():
+@pytest.fixture(scope='session')
+def before_and_end():
     print('Start testing')
     yield
-    print('Testing complete')
-
-
-@pytest.fixture
-def create_token_endpoint():
-    return CreateToken(None)
-
-
-@pytest.fixture
-def post_endpoint(create_new_token):
-    return CreateObject(create_new_token)
-
-
-@pytest.fixture
-def put_endpoint(create_new_token):
-    return PutObject(create_new_token)
-
-
-@pytest.fixture
-def delete_endpoint(create_new_token):
-    return DeleteObject(create_new_token)
-
-
-@pytest.fixture
-def get_all_endpoint(create_new_token):
-    return GetObjects(create_new_token)
-
-
-@pytest.fixture
-def get_one_endpoint(create_new_token):
-    return GetObjectById(create_new_token)
+    print('End testing')
 
 
 @pytest.fixture()
-def create_new_token(create_token_endpoint):
+def create_token():
+    return CreateTokenEndpoint(None)
+
+
+@pytest.fixture()
+def post_endpoint(create_token):
+    return PostEndpoint(create_token)
+
+
+@pytest.fixture()
+def put_endpoint(create_token):
+    return UpdateEndpoint(create_token)
+
+
+@pytest.fixture()
+def get_all_meme_endpoint(create_token):
+    return GetAllMemes(create_token)
+
+
+@pytest.fixture()
+def get_meme_endpoint(create_token):
+    return GetOneMeme(create_token)
+
+
+@pytest.fixture()
+def delete_meme_endpoint(create_token):
+    return DeleteMeme(create_token)
+
+
+@pytest.fixture()
+def auth_token(create_token):
     body = {
-        "name": "SpongeBob"
+        "name": "Test"
     }
-    headers = {'content-type': 'application/json'}
-    response = create_token_endpoint.create_new_token(body, headers)
+    response = requests.post('http://167.172.172.115:52355/authorize', json=body)
     token = response.json()['token']
-    return token
+    user = response.json()['user']
+    print(token)
+    return token, user
 
 
 @pytest.fixture()
-def object_id(post_endpoint):
+def check_auth_token(auth_token):
+    token, user = auth_token
+    response = requests.get(f'http://167.172.172.115:52355/authorize/{token}')
+    print(response.json())
+    if response.text == f'Token is alive. Username is {user}':
+        print('Token is alive')
+    else:
+        print('Token is not alive')
+
+
+@pytest.fixture()
+def meme_id(auth_token, post_endpoint):
+    token, user = auth_token
     body = {
-            "text": "some",
-            "tags": [
-                1,
-                2,
-                3
-            ],
-            "info": {
-                "first": 1,
-                "second": 2
-            },
-            "url": 'https://example.com'
+        "text": "some_text",
+        "url": "example.com",
+        "tags": [
+            1,
+            2,
+            3
+        ],
+        "info": {
+            "one": 1,
+            "two": 2
         }
-    headers = {'Content-type': 'application/json'}
-    response = post_endpoint.create_object(body, headers)
-    object_id = response.json()['id']
-    yield object_id
-    print('delete object')
-    requests.delete(f'http://167.172.172.115:52355/{object_id}')
+    }
+    headers = {'Authorization': f'{token}'}
+    response = requests.post('http://167.172.172.115:52355/meme', json=body, headers=headers)
+    id_meme = response.json()['id']
+    yield id_meme
+    print('delete meme')
+    requests.delete(f'http://167.172.172.115:52355/{id_meme}')

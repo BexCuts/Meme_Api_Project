@@ -3,11 +3,10 @@ import requests
 import allure
 
 
-class CreateToken(EndpointsMain):
+class CreateTokenEndpoint(EndpointsMain):
 
     @allure.step('Create new token')
-    def create_new_token(self, body, headers=None):
-        headers = headers if headers else self.headers
+    def create_token(self, body):
         self.response = requests.post(f'{self.url}/authorize', json=body)
         self.json = self.response.json()
         return self.response

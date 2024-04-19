@@ -1,13 +1,13 @@
 from endpoints.endpoints_main_class import EndpointsMain
-import requests
 import allure
+import requests
 
 
-class GetObjectById(EndpointsMain):
+class GetOneMeme(EndpointsMain):
 
-    @allure.step('Get object by id')
-    def get_object_by_id(self, object_id, headers=None):
+    @allure.step('Get meme by id')
+    def get_one_endpoint(self, meme_id, headers=None):
         headers = headers if headers else self.headers
-        self.response = requests.get(f'{self.url}/meme/{object_id}', headers=headers)
+        self.response = requests.get(f'{self.url}/meme/{meme_id}', headers=headers)
         self.json = self.response.json()
         return self.response

@@ -3,10 +3,10 @@ import requests
 import allure
 
 
-class GetObjects(EndpointsMain):
+class GetAllMemes(EndpointsMain):
 
-    @allure.step('Get all objects')
-    def get_all_objects(self, headers=None):
+    @allure.step('Get all memes')
+    def get_all_memes(self, headers=None):
         headers = headers if headers else self.headers
         self.response = requests.get(f'{self.url}/meme', headers=headers)
         self.json = self.response.json()
