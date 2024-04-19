@@ -71,3 +71,10 @@ def test_update_meme(put_endpoint, body, meme_id, auth_token):
     put_endpoint.check_response_code()
     put_endpoint.check_response_id(put_endpoint.response.json()['id'])
     MemeData(**put_endpoint.response.json())
+
+
+@pytest.mark.smoke
+def test_delete_meme(delete_meme_endpoint, auth_token, meme_id):
+    token, user = auth_token
+    delete_meme_endpoint.delete_meme(meme_id=meme_id, headers={'Authorization': f'{token}'})
+    delete_meme_endpoint.check_response_code()
